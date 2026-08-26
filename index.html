@@ -98,6 +98,7 @@
             background: #e0e0e0;
             outline: none;
             -webkit-appearance: none;
+            touch-action: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
@@ -165,7 +166,10 @@
         }
 
         #canvas {
-            display: none; /* 内部処理用 */
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         #resultImage {
@@ -173,7 +177,7 @@
             max-height: 100%;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            -webkit-touch-callout: default; /* iPhoneの長押しメニューを許可 */
+            -webkit-touch-callout: default;
         }
 
         .info-box {
@@ -385,11 +389,12 @@
                 </div>
                 
                 <div class="download-section" style="margin-top: 20px;">
-                    <button class="btn-primary" onclick="downloadImage()">📥 画像を保存 / ダウンロード</button>
+                    <button class="btn-primary" onclick="downloadImage()">📥 画像を保存 / 共有</button>
                 </div>
                 <div class="info-box">
-                    <strong>💡 iPhoneをお使いの方へ：</strong><br>
-                    ボタンでダウンロードされない場合は、<b>プレビュー画像を長押し</b>して「"写真"に追加」を選択してください。
+                    <strong>💡 保存できない場合：</strong><br>
+                    1. 「画像を保存/共有」ボタンで共有メニューから保存<br>
+                    2. プレビュー表示画像を長押しして「写真に追加」または「画像を保存」
                 </div>
             </div>
         </div>
@@ -402,6 +407,8 @@
         
         let frameImg = null;
         let iconImg = null;
+        let isComposing = false;
+        let updateImageTimeout = null;
 
         document.getElementById('iconFile').addEventListener('change', (e) => handleFileSelect(e, 'icon'));
         document.getElementById('frameFile').addEventListener('change', (e) => handleFileSelect(e, 'frame'));
@@ -421,7 +428,7 @@
                         frameImg = img;
                         showFilePreview('framePreview', event.target.result, 'frameFileLabel');
                     }
-                    composeIcon();
+                    composeIcon(true);
                 };
                 img.src = event.target.result;
             };
@@ -440,15 +447,31 @@
         const sliders = ['offsetX', 'offsetY', 'scale', 'rotation', 'opacity'];
         sliders.forEach(id => {
             const el = document.getElementById(id);
+            // 操作中は即座にCanvasのみ再描画（高速化）
             el.addEventListener('input', (e) => {
                 let unit = '';
                 if (id === 'scale' || id === 'opacity') unit = '%';
                 if (id === 'rotation') unit = '°';
                 
                 document.getElementById(id + 'Value').textContent = e.target.value + unit;
-                composeIcon();
+                requestCompose();
+            });
+
+            // 操作終了時にimgタグ（長押し保存用）を更新
+            el.addEventListener('change', () => {
+                syncResultImage();
             });
         });
+
+        function requestCompose() {
+            if (!isComposing) {
+                isComposing = true;
+                requestAnimationFrame(() => {
+                    composeIcon(false);
+                    isComposing = false;
+                });
+            }
+        }
 
         function showStatus(message, type = 'success') {
             const statusEl = document.getElementById('status');
@@ -459,14 +482,16 @@
             }, 3000);
         }
 
-        function composeIcon() {
+        function composeIcon(updateImg = true) {
             if (!frameImg && !iconImg) return;
 
             const width = frameImg ? frameImg.width : iconImg.width;
             const height = frameImg ? frameImg.height : iconImg.height;
             
-            canvas.width = width;
-            canvas.height = height;
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+            }
 
             ctx.clearRect(0, 0, width, height);
 
@@ -492,10 +517,19 @@
                 ctx.drawImage(frameImg, 0, 0, width, height);
             }
 
-            // Canvasの内容をimg要素（実体画像）に変換してiPhoneで長押し保存できるようにする
-            const dataUrl = canvas.toDataURL('image/png');
-            resultImage.src = dataUrl;
-            resultImage.style.display = 'block';
+            if (updateImg) {
+                syncResultImage();
+            }
+        }
+
+        // 長押し用imgへの変換処理（重いのでスライダー操作完了時のみ呼ぶ）
+        function syncResultImage() {
+            if (!frameImg && !iconImg) return;
+            clearTimeout(updateImageTimeout);
+            updateImageTimeout = setTimeout(() => {
+                const dataUrl = canvas.toDataURL('image/png');
+                resultImage.src = dataUrl;
+            }, 50);
         }
 
         function resetValues() {
@@ -511,18 +545,42 @@
             document.getElementById('rotationValue').textContent = '0°';
             document.getElementById('opacityValue').textContent = '100%';
 
-            composeIcon();
+            composeIcon(true);
         }
 
-        function downloadImage() {
+        async function downloadImage() {
             if (!frameImg && !iconImg) {
                 showStatus('画像を選択してください', 'error');
                 return;
             }
 
-            try {
-                // Blobを用いたより確実なダウンロード処理
-                canvas.toBlob((blob) => {
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    showStatus('画像の生成に失敗しました', 'error');
+                    return;
+                }
+
+                const file = new File([blob], 'icon-composed.png', { type: 'image/png' });
+
+                // 1. Web Share API (Chrome / Safari モバイルで強力に動作)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'アイコン画像',
+                            text: '合成したアイコン画像です'
+                        });
+                        showStatus('✅ 共有・保存メニューを開きました');
+                        return;
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            console.error(err);
+                        }
+                    }
+                }
+
+                // 2. フォールバック: 通常のダウンロードリンク
+                try {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -530,12 +588,12 @@
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showStatus('✅ ダウンロード処理を実行しました');
-                }, 'image/png');
-            } catch (error) {
-                showStatus('❌ エラー: プレビュー画像を長押しして保存してください', 'error');
-            }
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    showStatus('✅ ダウンロードを開始しました');
+                } catch (e) {
+                    showStatus('💡 プレビュー画像を長押しして保存してください', 'error');
+                }
+            }, 'image/png');
         }
     </script>
 </body>
