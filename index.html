@@ -89,38 +89,6 @@
             border-color: #667eea;
         }
 
-        .input-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: none;
-            color: #999;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-button.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         .slider-group {
             display: flex;
             align-items: center;
@@ -332,26 +300,42 @@
             top: 20px;
         }
 
-        /* プルダウンメニューの位置制御 */
-        .tab-content-wrapper {
-            position: relative;
+        /* 2項目のみのシンプルなボタングループ */
+        .input-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .tab-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
+        .input-options button {
+            flex: 1;
+            padding: 10px;
             border: 2px solid #e0e0e0;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            padding: 15px;
-            z-index: 10;
+            background: white;
+            color: #555;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .input-options button.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+            color: #667eea;
+        }
+
+        .input-options button:hover {
+            border-color: #667eea;
+        }
+
+        .input-content {
             display: none;
         }
 
-        .tab-dropdown.active {
+        .input-content.active {
             display: block;
         }
     </style>
@@ -367,13 +351,13 @@
                 <div class="panel">
                     <h2>🖼️ フレーム画像</h2>
                     
-                    <div class="input-tabs">
-                        <button class="tab-button active" data-tab="frame-file" data-type="file">📱 ファイル</button>
-                        <button class="tab-button" data-tab="frame-url" data-type="url">URL</button>
+                    <div class="input-options">
+                        <button class="input-option-btn active" data-option="frame-file-upload">📤 本体からのアップ</button>
+                        <button class="input-option-btn" data-option="frame-camera">📷 撮影</button>
                     </div>
 
-                    <!-- フレーム ファイル タブ -->
-                    <div id="frame-file" class="tab-content active">
+                    <!-- フレーム ファイルアップロード -->
+                    <div id="frame-file-upload" class="input-content active">
                         <label class="file-input-button" id="frameFileLabel" onclick="document.getElementById('frameFile').click()">
                             📱 ファイルを選択
                         </label>
@@ -381,9 +365,13 @@
                         <div class="image-preview" id="framePreview"></div>
                     </div>
 
-                    <!-- フレーム URL タブ -->
-                    <div id="frame-url" class="tab-content">
-                        <input type="text" id="frameUrl" placeholder="例: https://example.com/frame.png">
+                    <!-- フレーム 撮影 -->
+                    <div id="frame-camera" class="input-content">
+                        <label class="file-input-button" id="frameCameraLabel" onclick="document.getElementById('frameCamera').click()">
+                            📷 撮影する
+                        </label>
+                        <input type="file" id="frameCamera" accept="image/*" capture="environment">
+                        <div class="image-preview" id="frameCameraPreview"></div>
                     </div>
                 </div>
 
@@ -391,13 +379,13 @@
                 <div class="panel">
                     <h2>🎯 アイコン画像</h2>
                     
-                    <div class="input-tabs">
-                        <button class="tab-button active" data-tab="icon-file" data-type="file">📱 ファイル</button>
-                        <button class="tab-button" data-tab="icon-url" data-type="url">URL</button>
+                    <div class="input-options">
+                        <button class="input-option-btn active" data-option="icon-file-upload">📤 本体からのアップ</button>
+                        <button class="input-option-btn" data-option="icon-camera">📷 撮影</button>
                     </div>
 
-                    <!-- アイコン ファイル タブ -->
-                    <div id="icon-file" class="tab-content active">
+                    <!-- アイコン ファイルアップロード -->
+                    <div id="icon-file-upload" class="input-content active">
                         <label class="file-input-button" id="iconFileLabel" onclick="document.getElementById('iconFile').click()">
                             📱 ファイルを選択
                         </label>
@@ -405,9 +393,13 @@
                         <div class="image-preview" id="iconPreview"></div>
                     </div>
 
-                    <!-- アイコン URL タブ -->
-                    <div id="icon-url" class="tab-content">
-                        <input type="text" id="iconUrl" placeholder="例: https://example.com/icon.png">
+                    <!-- アイコン 撮影 -->
+                    <div id="icon-camera" class="input-content">
+                        <label class="file-input-button" id="iconCameraLabel" onclick="document.getElementById('iconCamera').click()">
+                            📷 撮影する
+                        </label>
+                        <input type="file" id="iconCamera" accept="image/*" capture="environment">
+                        <div class="image-preview" id="iconCameraPreview"></div>
                     </div>
                 </div>
 
@@ -503,27 +495,26 @@
         let frameImageSource = null;
         let iconImageSource = null;
 
-        // タブ切り替え
-        document.querySelectorAll('.tab-button').forEach(button => {
+        // 入力オプションの切り替え
+        document.querySelectorAll('.input-option-btn').forEach(button => {
             button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tabId = button.dataset.tab;
-                const tabsContainer = button.closest('.input-tabs');
-                const parentPanel = tabsContainer.closest('.panel');
+                const option = button.dataset.option;
+                const optionGroup = button.closest('.input-options');
+                const parentPanel = optionGroup.closest('.panel');
                 
                 // ボタンのアクティブ状態を更新
-                tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
+                optionGroup.querySelectorAll('.input-option-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
                 button.classList.add('active');
                 
-                // タブコンテンツの表示を更新
-                parentPanel.querySelectorAll('.tab-content').forEach(content => {
+                // コンテンツの表示を更新
+                parentPanel.querySelectorAll('.input-content').forEach(content => {
                     content.classList.remove('active');
                 });
-                const activeTab = document.getElementById(tabId);
-                if (activeTab) {
-                    activeTab.classList.add('active');
+                const activeContent = document.getElementById(option);
+                if (activeContent) {
+                    activeContent.classList.add('active');
                 }
             });
         });
@@ -533,11 +524,19 @@
             handleFileSelect(e, 'frame');
         });
 
+        document.getElementById('frameCamera').addEventListener('change', (e) => {
+            handleFileSelect(e, 'frame', true);
+        });
+
         document.getElementById('iconFile').addEventListener('change', (e) => {
             handleFileSelect(e, 'icon');
         });
 
-        function handleFileSelect(e, type) {
+        document.getElementById('iconCamera').addEventListener('change', (e) => {
+            handleFileSelect(e, 'icon', true);
+        });
+
+        function handleFileSelect(e, type, isCamera = false) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -546,10 +545,18 @@
                 const dataUrl = event.target.result;
                 if (type === 'frame') {
                     frameImageSource = dataUrl;
-                    showFilePreview('framePreview', dataUrl, 'frameFileLabel');
+                    if (isCamera) {
+                        showFilePreview('frameCameraPreview', dataUrl, 'frameCameraLabel');
+                    } else {
+                        showFilePreview('framePreview', dataUrl, 'frameFileLabel');
+                    }
                 } else {
                     iconImageSource = dataUrl;
-                    showFilePreview('iconPreview', dataUrl, 'iconFileLabel');
+                    if (isCamera) {
+                        showFilePreview('iconCameraPreview', dataUrl, 'iconCameraLabel');
+                    } else {
+                        showFilePreview('iconPreview', dataUrl, 'iconFileLabel');
+                    }
                 }
                 composeIcon();
             };
@@ -591,15 +598,6 @@
             composeIcon();
         });
 
-        // Enter キーで合成
-        document.getElementById('frameUrl').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') composeIcon();
-        });
-
-        document.getElementById('iconUrl').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') composeIcon();
-        });
-
         function showStatus(message, type = 'success') {
             const statusEl = document.getElementById('status');
             statusEl.textContent = message;
@@ -621,41 +619,25 @@
 
         async function composeIcon() {
             try {
-                const frameUrl = document.getElementById('frameUrl').value.trim();
-                const iconUrl = document.getElementById('iconUrl').value.trim();
-
                 // フレーム画像を読み込む
-                if (frameImageSource) {
-                    frameImage = await loadImage(frameImageSource);
-                } else if (frameUrl) {
-                    if (!frameImage || frameImage.src !== frameUrl) {
-                        frameImage = await loadImage(frameUrl);
-                    }
-                } else {
-                    showStatus('フレーム画像を選択またはURLを入力してください', 'error');
+                if (!frameImageSource) {
+                    showStatus('フレーム画像を選択してください', 'error');
                     return;
                 }
+                frameImage = await loadImage(frameImageSource);
 
                 // アイコン画像を読み込む
-                if (iconImageSource) {
-                    iconImage = await loadImage(iconImageSource);
-                } else if (iconUrl) {
-                    if (!iconImage || iconImage.src !== iconUrl) {
-                        iconImage = await loadImage(iconUrl);
-                    }
-                } else {
-                    showStatus('アイコン画像を選択またはURLを入力してください', 'error');
+                if (!iconImageSource) {
+                    showStatus('アイコン画像を選択してください', 'error');
                     return;
                 }
+                iconImage = await loadImage(iconImageSource);
 
                 // キャンバスをリセット
                 const width = frameImage.width;
                 const height = frameImage.height;
                 canvas.width = width;
                 canvas.height = height;
-
-                // フレームを最初に描画（背景）
-                ctx.drawImage(frameImage, 0, 0, width, height);
 
                 // 値を取得
                 const offsetX = parseFloat(document.getElementById('offsetX').value);
@@ -664,7 +646,7 @@
                 const rotation = parseFloat(document.getElementById('rotation').value);
                 const opacity = parseFloat(document.getElementById('opacity').value) / 100;
 
-                // アイコンを最後に描画（前面）
+                // アイコンを最初に描画（背景）
                 ctx.save();
                 ctx.globalAlpha = opacity;
                 ctx.translate(width / 2 + offsetX, height / 2 + offsetY);
@@ -675,6 +657,9 @@
                 ctx.drawImage(iconImage, -iconWidth / 2, -iconHeight / 2, iconWidth, iconHeight);
                 
                 ctx.restore();
+
+                // フレームを最後に描画（前面）
+                ctx.drawImage(frameImage, 0, 0, width, height);
 
                 showStatus('✅ 合成完了');
             } catch (error) {
