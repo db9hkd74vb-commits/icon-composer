@@ -71,6 +71,12 @@
             gap: 15px;
         }
 
+        @media (max-width: 600px) {
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         label {
             display: block;
             color: #555;
@@ -105,16 +111,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
         .value-display {
             min-width: 50px;
             text-align: right;
@@ -138,8 +134,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .btn-primary {
@@ -147,23 +141,10 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
         .btn-secondary {
             background: #f0f0f0;
             color: #333;
             border: 2px solid #e0e0e0;
-        }
-
-        .btn-secondary:hover {
-            background: #e8e8e8;
         }
 
         .preview-area {
@@ -193,10 +174,6 @@
             color: #1565c0;
             margin-top: 15px;
             line-height: 1.6;
-        }
-
-        .download-section {
-            text-align: center;
         }
 
         .download-section button {
@@ -230,7 +207,6 @@
             margin-top: 20px;
             margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .row {
@@ -258,33 +234,37 @@
             font-weight: 600;
         }
 
+        /* ブラウザ標準のファイル入力ボタンを完全非表示にする */
         input[type="file"] {
-            display: none;
+            display: none !important;
         }
 
+        /* カスタムボタンの見た目 */
         .file-input-button {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
             padding: 14px;
-            background: #f0f0f0;
+            background: #f0f4ff;
             border: 2px dashed #667eea;
             border-radius: 8px;
             text-align: center;
             color: #667eea;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            user-select: none;
         }
 
-        .file-input-button:hover {
-            background: #f0f4ff;
+        .file-input-button:active {
+            background: #e0e8ff;
+            transform: scale(0.98);
         }
 
         .file-input-button.has-image {
             border-style: solid;
-            background: #f0f4ff;
+            background: #eef2ff;
         }
 
         .preview-panel {
@@ -298,26 +278,25 @@
         <h1>🎨 アイコン合成ツール</h1>
         
         <div class="main-content">
-            <!-- 左側：操作パネル -->
             <div class="left-section">
-                <!-- 画像選択パネル（1つに集約） -->
+                <!-- アップロード部分 -->
                 <div class="panel">
-                    <h2>🖼️ 画像のアップロード</h2>
+                    <h2>🖼️ 画像選択</h2>
                     
                     <div class="upload-grid">
                         <div class="form-group">
-                            <label>① 背景（アイコン画像）</label>
+                            <label>① 背景（アイコン）</label>
                             <label for="iconFile" class="file-input-button" id="iconFileLabel">
-                                📤 画像を選択
+                                📁 画像を選択
                             </label>
                             <input type="file" id="iconFile" accept="image/*">
                             <div class="image-preview" id="iconPreview"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>② 前面（フレーム素材）</label>
+                            <label>② 前面（フレーム）</label>
                             <label for="frameFile" class="file-input-button" id="frameFileLabel">
-                                📤 画像を選択
+                                🖼️ フレームを選択
                             </label>
                             <input type="file" id="frameFile" accept="image/*">
                             <div class="image-preview" id="framePreview"></div>
@@ -325,9 +304,9 @@
                     </div>
                 </div>
 
-                <!-- 調整パネル -->
+                <!-- 微調整部分 -->
                 <div class="panel">
-                    <h2>⚙️ アイコンの微調整</h2>
+                    <h2>⚙️ 位置・サイズ調整</h2>
 
                     <div class="control-section">
                         <h3>🎯 位置調整</h3>
@@ -381,19 +360,14 @@
                     </div>
 
                     <div class="button-group">
-                        <button class="btn-secondary" onclick="resetValues()">↺ 設定リセット</button>
+                        <button class="btn-secondary" onclick="resetValues()">↺ リセット</button>
                     </div>
 
                     <div id="status" class="status"></div>
-
-                    <div class="info-box">
-                        <strong>💡 ヒント：</strong><br>
-                        画像をセットすると右側に自動でプレビューされます。スライダーを移動して位置やサイズを調整してください。
-                    </div>
                 </div>
             </div>
 
-            <!-- 右側：プレビューパネル -->
+            <!-- プレビュー表示 -->
             <div class="preview-panel panel">
                 <h2>👁️ プレビュー</h2>
                 <div class="preview-area">
@@ -401,7 +375,7 @@
                 </div>
                 
                 <div class="download-section" style="margin-top: 20px;">
-                    <button class="btn-primary" onclick="downloadImage()">📥 画像を保存する</button>
+                    <button class="btn-primary" onclick="downloadImage()">📥 画像を保存</button>
                 </div>
             </div>
         </div>
@@ -414,7 +388,6 @@
         let frameImg = null;
         let iconImg = null;
 
-        // ファイル読込の共通処理
         document.getElementById('iconFile').addEventListener('change', (e) => handleFileSelect(e, 'icon'));
         document.getElementById('frameFile').addEventListener('change', (e) => handleFileSelect(e, 'frame'));
 
@@ -442,14 +415,13 @@
 
         function showFilePreview(previewId, dataUrl, labelId) {
             const preview = document.getElementById(previewId);
-            preview.innerHTML = `<img src="${dataUrl}" alt="プレビュー"><div class="image-preview-label">✅ セット完了</div>`;
+            preview.innerHTML = `<img src="${dataUrl}" alt="プレビュー"><div class="image-preview-label">✅ 準備OK</div>`;
             
             const label = document.getElementById(labelId);
             label.classList.add('has-image');
             label.textContent = '🔄 変更する';
         }
 
-        // スライダー各種イベント設定
         const sliders = ['offsetX', 'offsetY', 'scale', 'rotation', 'opacity'];
         sliders.forEach(id => {
             const el = document.getElementById(id);
@@ -475,7 +447,6 @@
         function composeIcon() {
             if (!frameImg && !iconImg) return;
 
-            // 解像度の決定（フレームのサイズを優先、なければアイコンサイズ）
             const width = frameImg ? frameImg.width : iconImg.width;
             const height = frameImg ? frameImg.height : iconImg.height;
             
@@ -484,7 +455,6 @@
 
             ctx.clearRect(0, 0, width, height);
 
-            // 1. 背景アイコンの描画
             if (iconImg) {
                 const offsetX = parseFloat(document.getElementById('offsetX').value);
                 const offsetY = parseFloat(document.getElementById('offsetY').value);
@@ -503,7 +473,6 @@
                 ctx.restore();
             }
 
-            // 2. 前面フレームの描画
             if (frameImg) {
                 ctx.drawImage(frameImg, 0, 0, width, height);
             }
@@ -527,7 +496,7 @@
 
         function downloadImage() {
             if (!frameImg && !iconImg) {
-                showStatus('画像がアップロードされていません', 'error');
+                showStatus('画像を選択してください', 'error');
                 return;
             }
 
@@ -536,9 +505,9 @@
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'icon-composed.png';
                 link.click();
-                showStatus('✅ 画像を保存しました');
+                showStatus('✅ 保存しました');
             } catch (error) {
-                showStatus('❌ ダウンロード失敗: ' + error.message, 'error');
+                showStatus('❌ 保存失敗: ' + error.message, 'error');
             }
         }
     </script>
