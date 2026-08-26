@@ -15,7 +15,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -27,17 +27,23 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .content {
+        .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 20px;
+            align-items: start;
         }
 
-        @media (max-width: 968px) {
-            .content {
+        @media (max-width: 1024px) {
+            .main-content {
                 grid-template-columns: 1fr;
             }
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .panel {
@@ -209,9 +215,9 @@
             background: #f9f9f9;
             border: 2px dashed #ddd;
             border-radius: 12px;
-            min-height: 400px;
+            min-height: 500px;
             position: relative;
-            overflow: hidden;
+            overflow: auto;
         }
 
         #canvas {
@@ -320,28 +326,27 @@
             background: #f0f4ff;
             color: #667eea;
         }
+
+        .preview-panel {
+            position: sticky;
+            top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 アイコン合成ツール</h1>
         
-        <div class="content">
-            <!-- 設定パネル -->
-            <div class="panel">
-                <h2>⚙️ 設定</h2>
-                
-                <!-- フレーム画像 -->
-                <div class="form-group">
-                    <label>🖼️ フレーム画像</label>
+        <div class="main-content">
+            <!-- 左側：操作パネル -->
+            <div class="left-section">
+                <!-- フレーム画像パネル -->
+                <div class="panel">
+                    <h2>🖼️ フレーム画像</h2>
+                    
                     <div class="input-tabs">
-                        <button class="tab-button active" data-tab="frame-url">URL</button>
                         <button class="tab-button" data-tab="frame-file">📱 ファイル</button>
-                    </div>
-
-                    <!-- フレーム URL タブ -->
-                    <div id="frame-url" class="tab-content active">
-                        <input type="text" id="frameUrl" placeholder="例: https://example.com/frame.png">
+                        <button class="tab-button active" data-tab="frame-url">URL</button>
                     </div>
 
                     <!-- フレーム ファイル タブ -->
@@ -352,19 +357,20 @@
                         <input type="file" id="frameFile" accept="image/*">
                         <div class="image-preview" id="framePreview"></div>
                     </div>
+
+                    <!-- フレーム URL タブ -->
+                    <div id="frame-url" class="tab-content active">
+                        <input type="text" id="frameUrl" placeholder="例: https://example.com/frame.png">
+                    </div>
                 </div>
 
-                <!-- アイコン画像 -->
-                <div class="form-group">
-                    <label>🎯 アイコン画像</label>
+                <!-- アイコン画像パネル -->
+                <div class="panel">
+                    <h2>🎯 アイコン画像</h2>
+                    
                     <div class="input-tabs">
-                        <button class="tab-button active" data-tab="icon-url">URL</button>
                         <button class="tab-button" data-tab="icon-file">📱 ファイル</button>
-                    </div>
-
-                    <!-- アイコン URL タブ -->
-                    <div id="icon-url" class="tab-content active">
-                        <input type="text" id="iconUrl" placeholder="例: https://example.com/icon.png">
+                        <button class="tab-button active" data-tab="icon-url">URL</button>
                     </div>
 
                     <!-- アイコン ファイル タブ -->
@@ -375,77 +381,84 @@
                         <input type="file" id="iconFile" accept="image/*">
                         <div class="image-preview" id="iconPreview"></div>
                     </div>
-                </div>
 
-                <div class="control-section">
-                    <h3>🎯 位置調整</h3>
-                    <div class="row">
-                        <div class="form-group">
-                            <label>X 位置 (px)</label>
-                            <div class="slider-group">
-                                <input type="range" id="offsetX" min="-200" max="200" value="0">
-                                <span class="value-display" id="offsetXValue">0</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Y 位置 (px)</label>
-                            <div class="slider-group">
-                                <input type="range" id="offsetY" min="-200" max="200" value="0">
-                                <span class="value-display" id="offsetYValue">0</span>
-                            </div>
-                        </div>
+                    <!-- アイコン URL タ�� -->
+                    <div id="icon-url" class="tab-content active">
+                        <input type="text" id="iconUrl" placeholder="例: https://example.com/icon.png">
                     </div>
                 </div>
 
-                <div class="control-section">
-                    <h3>📏 サイズ調整</h3>
-                    <div class="row">
-                        <div class="form-group">
-                            <label>アイコンサイズ (%)</label>
-                            <div class="slider-group">
-                                <input type="range" id="scale" min="20" max="200" value="100">
-                                <span class="value-display" id="scaleValue">100%</span>
+                <!-- 調整パネル -->
+                <div class="panel">
+                    <h2>⚙️ 調整</h2>
+
+                    <div class="control-section">
+                        <h3>🎯 位置調整</h3>
+                        <div class="row">
+                            <div class="form-group">
+                                <label>X 位置 (px)</label>
+                                <div class="slider-group">
+                                    <input type="range" id="offsetX" min="-200" max="200" value="0">
+                                    <span class="value-display" id="offsetXValue">0</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>回転 (度)</label>
-                            <div class="slider-group">
-                                <input type="range" id="rotation" min="0" max="360" value="0">
-                                <span class="value-display" id="rotationValue">0°</span>
+                            <div class="form-group">
+                                <label>Y 位置 (px)</label>
+                                <div class="slider-group">
+                                    <input type="range" id="offsetY" min="-200" max="200" value="0">
+                                    <span class="value-display" id="offsetYValue">0</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="control-section">
-                    <h3>🎨 不透明度</h3>
-                    <div class="form-group">
-                        <label>アイコン不透明度 (%)</label>
-                        <div class="slider-group">
-                            <input type="range" id="opacity" min="0" max="100" value="100">
-                            <span class="value-display" id="opacityValue">100%</span>
+                    <div class="control-section">
+                        <h3>📏 サイズ調整</h3>
+                        <div class="row">
+                            <div class="form-group">
+                                <label>アイコンサイズ (%)</label>
+                                <div class="slider-group">
+                                    <input type="range" id="scale" min="20" max="200" value="100">
+                                    <span class="value-display" id="scaleValue">100%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>回転 (度)</label>
+                                <div class="slider-group">
+                                    <input type="range" id="rotation" min="0" max="360" value="0">
+                                    <span class="value-display" id="rotationValue">0°</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="button-group">
-                    <button class="btn-primary" onclick="composeIcon()">🔄 合成</button>
-                    <button class="btn-secondary" onclick="resetValues()">↺ リセット</button>
-                </div>
+                    <div class="control-section">
+                        <h3>🎨 不透明度</h3>
+                        <div class="form-group">
+                            <label>アイコン不透明度 (%)</label>
+                            <div class="slider-group">
+                                <input type="range" id="opacity" min="0" max="100" value="100">
+                                <span class="value-display" id="opacityValue">100%</span>
+                            </div>
+                        </div>
+                    </div>
 
-                <div id="status" class="status"></div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="composeIcon()">🔄 合成</button>
+                        <button class="btn-secondary" onclick="resetValues()">↺ リセット</button>
+                    </div>
 
-                <div class="info-box">
-                    <strong>💡 使い方：</strong><br>
-                    1. URLまたは📱ファイルでフレーム・アイコンを選択<br>
-                    2. スライダーで位置・サイズ・回転を調整<br>
-                    3. 「合成」ボタンで反映<br>
-                    4. 「ダウンロード」で保存
+                    <div id="status" class="status"></div>
+
+                    <div class="info-box">
+                        <strong>💡 ヒント：</strong><br>
+                        右側のプレビューを見ながらスライダーを操作できます。
+                    </div>
                 </div>
             </div>
 
-            <!-- プレビューパネル -->
-            <div class="panel">
+            <!-- 右側：プレビューパネル -->
+            <div class="preview-panel panel">
                 <h2>👁️ プレビュー</h2>
                 <div class="preview-area">
                     <canvas id="canvas" width="400" height="400"></canvas>
@@ -473,7 +486,7 @@
                 e.preventDefault();
                 const tabId = button.dataset.tab;
                 const tabsContainer = button.closest('.input-tabs');
-                const parentForm = tabsContainer.closest('.form-group');
+                const parentForm = tabsContainer.closest('.panel');
                 
                 // ボタンのアクティブ状態を更新
                 tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
