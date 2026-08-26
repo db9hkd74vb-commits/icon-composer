@@ -331,6 +331,29 @@
             position: sticky;
             top: 20px;
         }
+
+        /* プルダウンメニューの位置制御 */
+        .tab-content-wrapper {
+            position: relative;
+        }
+
+        .tab-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 15px;
+            z-index: 10;
+            display: none;
+        }
+
+        .tab-dropdown.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -345,12 +368,12 @@
                     <h2>🖼️ フレーム画像</h2>
                     
                     <div class="input-tabs">
-                        <button class="tab-button" data-tab="frame-file">📱 ファイル</button>
-                        <button class="tab-button active" data-tab="frame-url">URL</button>
+                        <button class="tab-button active" data-tab="frame-file" data-type="file">📱 ファイル</button>
+                        <button class="tab-button" data-tab="frame-url" data-type="url">URL</button>
                     </div>
 
                     <!-- フレーム ファイル タブ -->
-                    <div id="frame-file" class="tab-content">
+                    <div id="frame-file" class="tab-content active">
                         <label class="file-input-button" id="frameFileLabel" onclick="document.getElementById('frameFile').click()">
                             📱 ファイルを選択
                         </label>
@@ -359,7 +382,7 @@
                     </div>
 
                     <!-- フレーム URL タブ -->
-                    <div id="frame-url" class="tab-content active">
+                    <div id="frame-url" class="tab-content">
                         <input type="text" id="frameUrl" placeholder="例: https://example.com/frame.png">
                     </div>
                 </div>
@@ -369,12 +392,12 @@
                     <h2>🎯 アイコン画像</h2>
                     
                     <div class="input-tabs">
-                        <button class="tab-button" data-tab="icon-file">📱 ファイル</button>
-                        <button class="tab-button active" data-tab="icon-url">URL</button>
+                        <button class="tab-button active" data-tab="icon-file" data-type="file">📱 ファイル</button>
+                        <button class="tab-button" data-tab="icon-url" data-type="url">URL</button>
                     </div>
 
                     <!-- アイコン ファイル タブ -->
-                    <div id="icon-file" class="tab-content">
+                    <div id="icon-file" class="tab-content active">
                         <label class="file-input-button" id="iconFileLabel" onclick="document.getElementById('iconFile').click()">
                             📱 ファイルを選択
                         </label>
@@ -382,8 +405,8 @@
                         <div class="image-preview" id="iconPreview"></div>
                     </div>
 
-                    <!-- アイコン URL タ�� -->
-                    <div id="icon-url" class="tab-content active">
+                    <!-- アイコン URL タブ -->
+                    <div id="icon-url" class="tab-content">
                         <input type="text" id="iconUrl" placeholder="例: https://example.com/icon.png">
                     </div>
                 </div>
@@ -486,7 +509,7 @@
                 e.preventDefault();
                 const tabId = button.dataset.tab;
                 const tabsContainer = button.closest('.input-tabs');
-                const parentForm = tabsContainer.closest('.panel');
+                const parentPanel = tabsContainer.closest('.panel');
                 
                 // ボタンのアクティブ状態を更新
                 tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
@@ -495,10 +518,13 @@
                 button.classList.add('active');
                 
                 // タブコンテンツの表示を更新
-                parentForm.querySelectorAll('.tab-content').forEach(content => {
+                parentPanel.querySelectorAll('.tab-content').forEach(content => {
                     content.classList.remove('active');
                 });
-                document.getElementById(tabId).classList.add('active');
+                const activeTab = document.getElementById(tabId);
+                if (activeTab) {
+                    activeTab.classList.add('active');
+                }
             });
         });
 
@@ -628,7 +654,7 @@
                 canvas.width = width;
                 canvas.height = height;
 
-                // フレームを描画
+                // フレームを最初に描画（背景）
                 ctx.drawImage(frameImage, 0, 0, width, height);
 
                 // 値を取得
@@ -638,7 +664,7 @@
                 const rotation = parseFloat(document.getElementById('rotation').value);
                 const opacity = parseFloat(document.getElementById('opacity').value) / 100;
 
-                // アイコンを描画
+                // アイコンを最後に描画（前面）
                 ctx.save();
                 ctx.globalAlpha = opacity;
                 ctx.translate(width / 2 + offsetX, height / 2 + offsetY);
