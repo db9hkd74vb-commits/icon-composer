@@ -302,34 +302,6 @@
             position: sticky;
             top: 20px;
         }
-
-        .input-method-group {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .input-method-group button {
-            flex: 1;
-            padding: 8px;
-            font-size: 12px;
-            text-transform: none;
-            letter-spacing: 0;
-            border: 2px solid #e0e0e0;
-            background: white;
-            color: #555;
-        }
-
-        .input-method-group button:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
-
-        .input-method-group button.active {
-            border-color: #667eea;
-            background: #f0f4ff;
-            color: #667eea;
-        }
     </style>
 </head>
 <body>
@@ -344,19 +316,12 @@
                     <h2>🖼️ フレーム画像</h2>
                     
                     <div class="form-group">
-                        <label>📤 本体からのアップ</label>
                         <label class="file-input-button" id="frameFileLabel" onclick="document.getElementById('frameFile').click()">
-                            📱 ファイルを選択
+                            📤 写真をアップロード
                         </label>
                         <input type="file" id="frameFile" accept="image/*">
                         <div class="image-preview" id="framePreview"></div>
                     </div>
-
-                    <div class="input-method-group">
-                        <button class="method-btn active" data-target="frameFile">📁 フォトライブラリ</button>
-                        <button class="method-btn" data-target="frameCamera">📷 写真を撮影</button>
-                    </div>
-                    <input type="file" id="frameCamera" accept="image/*" capture="environment" style="display: none;">
                 </div>
 
                 <!-- アイコン画像パネル -->
@@ -364,19 +329,12 @@
                     <h2>🎯 アイコン画像</h2>
                     
                     <div class="form-group">
-                        <label>📤 本体からのアップ</label>
                         <label class="file-input-button" id="iconFileLabel" onclick="document.getElementById('iconFile').click()">
-                            📱 ファイルを選択
+                            📤 写真をアップロード
                         </label>
                         <input type="file" id="iconFile" accept="image/*">
                         <div class="image-preview" id="iconPreview"></div>
                     </div>
-
-                    <div class="input-method-group">
-                        <button class="method-btn active" data-target="iconFile">📁 フォトライブラリ</button>
-                        <button class="method-btn" data-target="iconCamera">📷 写真を撮影</button>
-                    </div>
-                    <input type="file" id="iconCamera" accept="image/*" capture="environment" style="display: none;">
                 </div>
 
                 <!-- 調整パネル -->
@@ -471,37 +429,12 @@
         let frameImageSource = null;
         let iconImageSource = null;
 
-        // 入力方法ボタンの処理
-        document.querySelectorAll('.method-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const targetId = btn.dataset.target;
-                const group = btn.closest('.input-method-group');
-                
-                // ボタンのアクティブ状態を更新
-                group.querySelectorAll('.method-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                btn.classList.add('active');
-                
-                // ファイル入力をトリガー
-                document.getElementById(targetId).click();
-            });
-        });
-
         // ファイル読み込み
         document.getElementById('frameFile').addEventListener('change', (e) => {
             handleFileSelect(e, 'frame');
         });
 
-        document.getElementById('frameCamera').addEventListener('change', (e) => {
-            handleFileSelect(e, 'frame');
-        });
-
         document.getElementById('iconFile').addEventListener('change', (e) => {
-            handleFileSelect(e, 'icon');
-        });
-
-        document.getElementById('iconCamera').addEventListener('change', (e) => {
             handleFileSelect(e, 'icon');
         });
 
@@ -530,7 +463,7 @@
             
             const label = document.getElementById(labelId);
             label.classList.add('has-image');
-            label.textContent = '✅ ファイル選択済み';
+            label.textContent = '✅ アップロード済み';
         }
 
         // スライダーの値表示を更新
