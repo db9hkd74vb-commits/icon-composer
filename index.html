@@ -74,17 +74,20 @@
         }
 
         input[type="text"],
-        input[type="number"] {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.3s;
+            font-family: inherit;
         }
 
         input[type="text"]:focus,
-        input[type="number"]:focus {
+        input[type="number"]:focus,
+        select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -300,43 +303,32 @@
             top: 20px;
         }
 
-        /* 2項目のみのシンプルなボタングループ */
-        .input-options {
+        .input-method-group {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-top: 8px;
         }
 
-        .input-options button {
+        .input-method-group button {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
+            font-size: 12px;
+            text-transform: none;
+            letter-spacing: 0;
             border: 2px solid #e0e0e0;
             background: white;
             color: #555;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s;
-            text-transform: none;
-            letter-spacing: 0;
         }
 
-        .input-options button.active {
+        .input-method-group button:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .input-method-group button.active {
             border-color: #667eea;
             background: #f0f4ff;
             color: #667eea;
-        }
-
-        .input-options button:hover {
-            border-color: #667eea;
-        }
-
-        .input-content {
-            display: none;
-        }
-
-        .input-content.active {
-            display: block;
         }
     </style>
 </head>
@@ -351,13 +343,8 @@
                 <div class="panel">
                     <h2>🖼️ フレーム画像</h2>
                     
-                    <div class="input-options">
-                        <button class="input-option-btn active" data-option="frame-file-upload">📤 本体からのアップ</button>
-                        <button class="input-option-btn" data-option="frame-camera">📷 撮影</button>
-                    </div>
-
-                    <!-- フレーム ファイルアップロード -->
-                    <div id="frame-file-upload" class="input-content active">
+                    <div class="form-group">
+                        <label>📤 本体からのアップ</label>
                         <label class="file-input-button" id="frameFileLabel" onclick="document.getElementById('frameFile').click()">
                             📱 ファイルを選択
                         </label>
@@ -365,27 +352,19 @@
                         <div class="image-preview" id="framePreview"></div>
                     </div>
 
-                    <!-- フレーム 撮影 -->
-                    <div id="frame-camera" class="input-content">
-                        <label class="file-input-button" id="frameCameraLabel" onclick="document.getElementById('frameCamera').click()">
-                            📷 撮影する
-                        </label>
-                        <input type="file" id="frameCamera" accept="image/*" capture="environment">
-                        <div class="image-preview" id="frameCameraPreview"></div>
+                    <div class="input-method-group">
+                        <button class="method-btn active" data-target="frameFile">📁 フォトライブラリ</button>
+                        <button class="method-btn" data-target="frameCamera">📷 写真を撮影</button>
                     </div>
+                    <input type="file" id="frameCamera" accept="image/*" capture="environment" style="display: none;">
                 </div>
 
                 <!-- アイコン画像パネル -->
                 <div class="panel">
                     <h2>🎯 アイコン画像</h2>
                     
-                    <div class="input-options">
-                        <button class="input-option-btn active" data-option="icon-file-upload">📤 本体からのアップ</button>
-                        <button class="input-option-btn" data-option="icon-camera">📷 撮影</button>
-                    </div>
-
-                    <!-- アイコン ファイルアップロード -->
-                    <div id="icon-file-upload" class="input-content active">
+                    <div class="form-group">
+                        <label>📤 本体からのアップ</label>
                         <label class="file-input-button" id="iconFileLabel" onclick="document.getElementById('iconFile').click()">
                             📱 ファイルを選択
                         </label>
@@ -393,14 +372,11 @@
                         <div class="image-preview" id="iconPreview"></div>
                     </div>
 
-                    <!-- アイコン 撮影 -->
-                    <div id="icon-camera" class="input-content">
-                        <label class="file-input-button" id="iconCameraLabel" onclick="document.getElementById('iconCamera').click()">
-                            📷 撮影する
-                        </label>
-                        <input type="file" id="iconCamera" accept="image/*" capture="environment">
-                        <div class="image-preview" id="iconCameraPreview"></div>
+                    <div class="input-method-group">
+                        <button class="method-btn active" data-target="iconFile">📁 フォトライブラリ</button>
+                        <button class="method-btn" data-target="iconCamera">📷 写真を撮影</button>
                     </div>
+                    <input type="file" id="iconCamera" accept="image/*" capture="environment" style="display: none;">
                 </div>
 
                 <!-- 調整パネル -->
@@ -495,27 +471,20 @@
         let frameImageSource = null;
         let iconImageSource = null;
 
-        // 入力オプションの切り替え
-        document.querySelectorAll('.input-option-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const option = button.dataset.option;
-                const optionGroup = button.closest('.input-options');
-                const parentPanel = optionGroup.closest('.panel');
+        // 入力方法ボタンの処理
+        document.querySelectorAll('.method-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetId = btn.dataset.target;
+                const group = btn.closest('.input-method-group');
                 
                 // ボタンのアクティブ状態を更新
-                optionGroup.querySelectorAll('.input-option-btn').forEach(btn => {
-                    btn.classList.remove('active');
+                group.querySelectorAll('.method-btn').forEach(b => {
+                    b.classList.remove('active');
                 });
-                button.classList.add('active');
+                btn.classList.add('active');
                 
-                // コンテンツの表示を更新
-                parentPanel.querySelectorAll('.input-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                const activeContent = document.getElementById(option);
-                if (activeContent) {
-                    activeContent.classList.add('active');
-                }
+                // ファイル入力をトリガー
+                document.getElementById(targetId).click();
             });
         });
 
@@ -525,7 +494,7 @@
         });
 
         document.getElementById('frameCamera').addEventListener('change', (e) => {
-            handleFileSelect(e, 'frame', true);
+            handleFileSelect(e, 'frame');
         });
 
         document.getElementById('iconFile').addEventListener('change', (e) => {
@@ -533,10 +502,10 @@
         });
 
         document.getElementById('iconCamera').addEventListener('change', (e) => {
-            handleFileSelect(e, 'icon', true);
+            handleFileSelect(e, 'icon');
         });
 
-        function handleFileSelect(e, type, isCamera = false) {
+        function handleFileSelect(e, type) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -545,18 +514,10 @@
                 const dataUrl = event.target.result;
                 if (type === 'frame') {
                     frameImageSource = dataUrl;
-                    if (isCamera) {
-                        showFilePreview('frameCameraPreview', dataUrl, 'frameCameraLabel');
-                    } else {
-                        showFilePreview('framePreview', dataUrl, 'frameFileLabel');
-                    }
+                    showFilePreview('framePreview', dataUrl, 'frameFileLabel');
                 } else {
                     iconImageSource = dataUrl;
-                    if (isCamera) {
-                        showFilePreview('iconCameraPreview', dataUrl, 'iconCameraLabel');
-                    } else {
-                        showFilePreview('iconPreview', dataUrl, 'iconFileLabel');
-                    }
+                    showFilePreview('iconPreview', dataUrl, 'iconFileLabel');
                 }
                 composeIcon();
             };
