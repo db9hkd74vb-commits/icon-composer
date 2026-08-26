@@ -83,6 +83,38 @@
             border-color: #667eea;
         }
 
+        .input-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            color: #999;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .slider-group {
             display: flex;
             align-items: center;
@@ -242,6 +274,52 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
+
+        .image-preview {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .image-preview-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-input-button {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-button:hover {
+            background: #e8e8e8;
+        }
+
+        .file-input-button.has-image {
+            border-color: #667eea;
+            background: #f0f4ff;
+            color: #667eea;
+        }
     </style>
 </head>
 <body>
@@ -253,14 +331,50 @@
             <div class="panel">
                 <h2>⚙️ 設定</h2>
                 
+                <!-- フレーム画像 -->
                 <div class="form-group">
-                    <label>フレーム画像 URL</label>
-                    <input type="text" id="frameUrl" placeholder="例: https://example.com/frame.png" value="">
+                    <label>🖼️ フレーム画像</label>
+                    <div class="input-tabs">
+                        <button class="tab-button active" data-tab="frame-url">URL</button>
+                        <button class="tab-button" data-tab="frame-file">📱 ファイル</button>
+                    </div>
+
+                    <!-- フレーム URL タブ -->
+                    <div id="frame-url" class="tab-content active">
+                        <input type="text" id="frameUrl" placeholder="例: https://example.com/frame.png">
+                    </div>
+
+                    <!-- フレーム ファイル タブ -->
+                    <div id="frame-file" class="tab-content">
+                        <label class="file-input-button" id="frameFileLabel" onclick="document.getElementById('frameFile').click()">
+                            📱 ファイルを選択
+                        </label>
+                        <input type="file" id="frameFile" accept="image/*">
+                        <div class="image-preview" id="framePreview"></div>
+                    </div>
                 </div>
 
+                <!-- アイコン画像 -->
                 <div class="form-group">
-                    <label>アイコン画像 URL</label>
-                    <input type="text" id="iconUrl" placeholder="例: https://example.com/icon.png" value="">
+                    <label>🎯 アイコン画像</label>
+                    <div class="input-tabs">
+                        <button class="tab-button active" data-tab="icon-url">URL</button>
+                        <button class="tab-button" data-tab="icon-file">📱 ファイル</button>
+                    </div>
+
+                    <!-- アイコン URL タブ -->
+                    <div id="icon-url" class="tab-content active">
+                        <input type="text" id="iconUrl" placeholder="例: https://example.com/icon.png">
+                    </div>
+
+                    <!-- アイコン ファイル タブ -->
+                    <div id="icon-file" class="tab-content">
+                        <label class="file-input-button" id="iconFileLabel" onclick="document.getElementById('iconFile').click()">
+                            📱 ファイルを選択
+                        </label>
+                        <input type="file" id="iconFile" accept="image/*">
+                        <div class="image-preview" id="iconPreview"></div>
+                    </div>
                 </div>
 
                 <div class="control-section">
@@ -323,8 +437,8 @@
 
                 <div class="info-box">
                     <strong>💡 使い方：</strong><br>
-                    1. フレーム画像とアイコン画像のURLを入力<br>
-                    2. スライダーで位置・サイズ・回転���調整<br>
+                    1. URLまたは📱ファイルでフレーム・アイコンを選択<br>
+                    2. スライダーで位置・サイズ・回転を調整<br>
                     3. 「合成」ボタンで反映<br>
                     4. 「ダウンロード」で保存
                 </div>
@@ -350,6 +464,67 @@
         
         let frameImage = null;
         let iconImage = null;
+        let frameImageSource = null;
+        let iconImageSource = null;
+
+        // タブ切り替え
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = button.dataset.tab;
+                const tabsContainer = button.closest('.input-tabs');
+                const parentForm = tabsContainer.closest('.form-group');
+                
+                // ボタンのアクティブ状態を更新
+                tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+                
+                // タブコンテンツの表示を更新
+                parentForm.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // ファイル読み込み
+        document.getElementById('frameFile').addEventListener('change', (e) => {
+            handleFileSelect(e, 'frame');
+        });
+
+        document.getElementById('iconFile').addEventListener('change', (e) => {
+            handleFileSelect(e, 'icon');
+        });
+
+        function handleFileSelect(e, type) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target.result;
+                if (type === 'frame') {
+                    frameImageSource = dataUrl;
+                    showFilePreview('framePreview', dataUrl, 'frameFileLabel');
+                } else {
+                    iconImageSource = dataUrl;
+                    showFilePreview('iconPreview', dataUrl, 'iconFileLabel');
+                }
+                composeIcon();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showFilePreview(previewId, dataUrl, labelId) {
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = `<img src="${dataUrl}" alt="プレビュー"><div class="image-preview-label">✅ 読み込み完了</div>`;
+            
+            const label = document.getElementById(labelId);
+            label.classList.add('has-image');
+            label.textContent = '✅ ファイル選択済み';
+        }
 
         // スライダーの値表示を更新
         document.getElementById('offsetX').addEventListener('input', (e) => {
@@ -410,17 +585,28 @@
                 const frameUrl = document.getElementById('frameUrl').value.trim();
                 const iconUrl = document.getElementById('iconUrl').value.trim();
 
-                if (!frameUrl || !iconUrl) {
-                    showStatus('フレームとアイコンのURLを入力してください', 'error');
+                // フレーム画像を読み込む
+                if (frameImageSource) {
+                    frameImage = await loadImage(frameImageSource);
+                } else if (frameUrl) {
+                    if (!frameImage || frameImage.src !== frameUrl) {
+                        frameImage = await loadImage(frameUrl);
+                    }
+                } else {
+                    showStatus('フレーム画像を選択またはURLを入力してください', 'error');
                     return;
                 }
 
-                // 画像を読み込む
-                if (!frameImage || frameImage.src !== frameUrl) {
-                    frameImage = await loadImage(frameUrl);
-                }
-                if (!iconImage || iconImage.src !== iconUrl) {
-                    iconImage = await loadImage(iconUrl);
+                // アイコン画像を読み込む
+                if (iconImageSource) {
+                    iconImage = await loadImage(iconImageSource);
+                } else if (iconUrl) {
+                    if (!iconImage || iconImage.src !== iconUrl) {
+                        iconImage = await loadImage(iconUrl);
+                    }
+                } else {
+                    showStatus('アイコン画像を選択またはURLを入力してください', 'error');
+                    return;
                 }
 
                 // キャンバスをリセット
@@ -485,11 +671,6 @@
                 showStatus('❌ ダウンロード失敗: ' + error.message, 'error');
             }
         }
-
-        // サンプル画像でデモンストレーション
-        window.addEventListener('load', () => {
-            // ここにサンプルURLを設定することで、ページ読み込み時にデモが表示されます
-        });
     </script>
 </body>
 </html>
