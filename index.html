@@ -65,31 +65,18 @@
             margin-bottom: 20px;
         }
 
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
         label {
             display: block;
             color: #555;
             font-weight: 600;
             margin-bottom: 8px;
             font-size: 14px;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         .slider-group {
@@ -186,7 +173,7 @@
             background: #f9f9f9;
             border: 2px dashed #ddd;
             border-radius: 12px;
-            min-height: 500px;
+            min-height: 400px;
             position: relative;
             overflow: auto;
         }
@@ -259,15 +246,16 @@
 
         .image-preview img {
             max-width: 100%;
-            max-height: 150px;
+            max-height: 100px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .image-preview-label {
             font-size: 12px;
-            color: #999;
-            margin-top: 8px;
+            color: #2e7d32;
+            margin-top: 4px;
+            font-weight: 600;
         }
 
         input[type="file"] {
@@ -275,27 +263,28 @@
         }
 
         .file-input-button {
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: #f0f0f0;
-            border: 2px solid #e0e0e0;
+            border: 2px dashed #667eea;
             border-radius: 8px;
             text-align: center;
-            color: #333;
+            color: #667eea;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .file-input-button:hover {
-            background: #e8e8e8;
+            background: #f0f4ff;
         }
 
         .file-input-button.has-image {
-            border-color: #667eea;
+            border-style: solid;
             background: #f0f4ff;
-            color: #667eea;
         }
 
         .preview-panel {
@@ -311,35 +300,34 @@
         <div class="main-content">
             <!-- 左側：操作パネル -->
             <div class="left-section">
-                <!-- フレーム画像パネル -->
+                <!-- 画像選択パネル（1つに集約） -->
                 <div class="panel">
-                    <h2>🖼️ フレーム画像</h2>
+                    <h2>🖼️ 画像のアップロード</h2>
                     
-                    <div class="form-group">
-                        <label class="file-input-button" id="frameFileLabel" onclick="document.getElementById('frameFile').click()">
-                            📤 写真をアップロード
-                        </label>
-                        <input type="file" id="frameFile" accept="image/*">
-                        <div class="image-preview" id="framePreview"></div>
-                    </div>
-                </div>
+                    <div class="upload-grid">
+                        <div class="form-group">
+                            <label>① 背景（アイコン画像）</label>
+                            <label for="iconFile" class="file-input-button" id="iconFileLabel">
+                                📤 画像を選択
+                            </label>
+                            <input type="file" id="iconFile" accept="image/*">
+                            <div class="image-preview" id="iconPreview"></div>
+                        </div>
 
-                <!-- アイコン画像パネル -->
-                <div class="panel">
-                    <h2>🎯 アイコン画像</h2>
-                    
-                    <div class="form-group">
-                        <label class="file-input-button" id="iconFileLabel" onclick="document.getElementById('iconFile').click()">
-                            📤 写真をアップロード
-                        </label>
-                        <input type="file" id="iconFile" accept="image/*">
-                        <div class="image-preview" id="iconPreview"></div>
+                        <div class="form-group">
+                            <label>② 前面（フレーム素材）</label>
+                            <label for="frameFile" class="file-input-button" id="frameFileLabel">
+                                📤 画像を選択
+                            </label>
+                            <input type="file" id="frameFile" accept="image/*">
+                            <div class="image-preview" id="framePreview"></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 調整パネル -->
                 <div class="panel">
-                    <h2>⚙️ 調整</h2>
+                    <h2>⚙️ アイコンの微調整</h2>
 
                     <div class="control-section">
                         <h3>🎯 位置調整</h3>
@@ -347,14 +335,14 @@
                             <div class="form-group">
                                 <label>X 位置 (px)</label>
                                 <div class="slider-group">
-                                    <input type="range" id="offsetX" min="-200" max="200" value="0">
+                                    <input type="range" id="offsetX" min="-300" max="300" value="0">
                                     <span class="value-display" id="offsetXValue">0</span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>Y 位置 (px)</label>
                                 <div class="slider-group">
-                                    <input type="range" id="offsetY" min="-200" max="200" value="0">
+                                    <input type="range" id="offsetY" min="-300" max="300" value="0">
                                     <span class="value-display" id="offsetYValue">0</span>
                                 </div>
                             </div>
@@ -362,12 +350,12 @@
                     </div>
 
                     <div class="control-section">
-                        <h3>📏 サイズ調整</h3>
+                        <h3>📏 サイズ & 回転</h3>
                         <div class="row">
                             <div class="form-group">
-                                <label>アイコンサイズ (%)</label>
+                                <label>拡大率 (%)</label>
                                 <div class="slider-group">
-                                    <input type="range" id="scale" min="20" max="200" value="100">
+                                    <input type="range" id="scale" min="10" max="250" value="100">
                                     <span class="value-display" id="scaleValue">100%</span>
                                 </div>
                             </div>
@@ -393,15 +381,14 @@
                     </div>
 
                     <div class="button-group">
-                        <button class="btn-primary" onclick="composeIcon()">🔄 合成</button>
-                        <button class="btn-secondary" onclick="resetValues()">↺ リセット</button>
+                        <button class="btn-secondary" onclick="resetValues()">↺ 設定リセット</button>
                     </div>
 
                     <div id="status" class="status"></div>
 
                     <div class="info-box">
                         <strong>💡 ヒント：</strong><br>
-                        右側のプレビューを見ながらスライダーを操作できます。
+                        画像をセットすると右側に自動でプレビューされます。スライダーを移動して位置やサイズを調整してください。
                     </div>
                 </div>
             </div>
@@ -414,7 +401,7 @@
                 </div>
                 
                 <div class="download-section" style="margin-top: 20px;">
-                    <button class="btn-primary" onclick="downloadImage()">📥 ダウンロード</button>
+                    <button class="btn-primary" onclick="downloadImage()">📥 画像を保存する</button>
                 </div>
             </div>
         </div>
@@ -424,19 +411,12 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
-        let frameImage = null;
-        let iconImage = null;
-        let frameImageSource = null;
-        let iconImageSource = null;
+        let frameImg = null;
+        let iconImg = null;
 
-        // ファイル読み込み
-        document.getElementById('frameFile').addEventListener('change', (e) => {
-            handleFileSelect(e, 'frame');
-        });
-
-        document.getElementById('iconFile').addEventListener('change', (e) => {
-            handleFileSelect(e, 'icon');
-        });
+        // ファイル読込の共通処理
+        document.getElementById('iconFile').addEventListener('change', (e) => handleFileSelect(e, 'icon'));
+        document.getElementById('frameFile').addEventListener('change', (e) => handleFileSelect(e, 'frame'));
 
         function handleFileSelect(e, type) {
             const file = e.target.files[0];
@@ -444,52 +424,43 @@
 
             const reader = new FileReader();
             reader.onload = (event) => {
-                const dataUrl = event.target.result;
-                if (type === 'frame') {
-                    frameImageSource = dataUrl;
-                    showFilePreview('framePreview', dataUrl, 'frameFileLabel');
-                } else {
-                    iconImageSource = dataUrl;
-                    showFilePreview('iconPreview', dataUrl, 'iconFileLabel');
-                }
-                composeIcon();
+                const img = new Image();
+                img.onload = () => {
+                    if (type === 'icon') {
+                        iconImg = img;
+                        showFilePreview('iconPreview', event.target.result, 'iconFileLabel');
+                    } else {
+                        frameImg = img;
+                        showFilePreview('framePreview', event.target.result, 'frameFileLabel');
+                    }
+                    composeIcon();
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
 
         function showFilePreview(previewId, dataUrl, labelId) {
             const preview = document.getElementById(previewId);
-            preview.innerHTML = `<img src="${dataUrl}" alt="プレビュー"><div class="image-preview-label">✅ 読み込み完了</div>`;
+            preview.innerHTML = `<img src="${dataUrl}" alt="プレビュー"><div class="image-preview-label">✅ セット完了</div>`;
             
             const label = document.getElementById(labelId);
             label.classList.add('has-image');
-            label.textContent = '✅ アップロード済み';
+            label.textContent = '🔄 変更する';
         }
 
-        // スライダーの値表示を更新
-        document.getElementById('offsetX').addEventListener('input', (e) => {
-            document.getElementById('offsetXValue').textContent = e.target.value;
-            composeIcon();
-        });
-
-        document.getElementById('offsetY').addEventListener('input', (e) => {
-            document.getElementById('offsetYValue').textContent = e.target.value;
-            composeIcon();
-        });
-
-        document.getElementById('scale').addEventListener('input', (e) => {
-            document.getElementById('scaleValue').textContent = e.target.value + '%';
-            composeIcon();
-        });
-
-        document.getElementById('rotation').addEventListener('input', (e) => {
-            document.getElementById('rotationValue').textContent = e.target.value + '°';
-            composeIcon();
-        });
-
-        document.getElementById('opacity').addEventListener('input', (e) => {
-            document.getElementById('opacityValue').textContent = e.target.value + '%';
-            composeIcon();
+        // スライダー各種イベント設定
+        const sliders = ['offsetX', 'offsetY', 'scale', 'rotation', 'opacity'];
+        sliders.forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', (e) => {
+                let unit = '';
+                if (id === 'scale' || id === 'opacity') unit = '%';
+                if (id === 'rotation') unit = '°';
+                
+                document.getElementById(id + 'Value').textContent = e.target.value + unit;
+                composeIcon();
+            });
         });
 
         function showStatus(message, type = 'success') {
@@ -501,64 +472,40 @@
             }, 3000);
         }
 
-        function loadImage(url) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => resolve(img);
-                img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
-                img.src = url;
-            });
-        }
+        function composeIcon() {
+            if (!frameImg && !iconImg) return;
 
-        async function composeIcon() {
-            try {
-                // フレーム画像を読み込む
-                if (!frameImageSource) {
-                    showStatus('フレーム画像を選択してください', 'error');
-                    return;
-                }
-                frameImage = await loadImage(frameImageSource);
+            // 解像度の決定（フレームのサイズを優先、なければアイコンサイズ）
+            const width = frameImg ? frameImg.width : iconImg.width;
+            const height = frameImg ? frameImg.height : iconImg.height;
+            
+            canvas.width = width;
+            canvas.height = height;
 
-                // アイコン画像を読み込む
-                if (!iconImageSource) {
-                    showStatus('アイコン画像を選択してください', 'error');
-                    return;
-                }
-                iconImage = await loadImage(iconImageSource);
+            ctx.clearRect(0, 0, width, height);
 
-                // キャンバスをリセット
-                const width = frameImage.width;
-                const height = frameImage.height;
-                canvas.width = width;
-                canvas.height = height;
-
-                // 値を取得
+            // 1. 背景アイコンの描画
+            if (iconImg) {
                 const offsetX = parseFloat(document.getElementById('offsetX').value);
                 const offsetY = parseFloat(document.getElementById('offsetY').value);
                 const scale = parseFloat(document.getElementById('scale').value) / 100;
                 const rotation = parseFloat(document.getElementById('rotation').value);
                 const opacity = parseFloat(document.getElementById('opacity').value) / 100;
 
-                // アイコンを最初に描画（背景）
                 ctx.save();
                 ctx.globalAlpha = opacity;
                 ctx.translate(width / 2 + offsetX, height / 2 + offsetY);
                 ctx.rotate((rotation * Math.PI) / 180);
-                
-                const iconWidth = iconImage.width * scale;
-                const iconHeight = iconImage.height * scale;
-                ctx.drawImage(iconImage, -iconWidth / 2, -iconHeight / 2, iconWidth, iconHeight);
-                
+
+                const iconWidth = iconImg.width * scale;
+                const iconHeight = iconImg.height * scale;
+                ctx.drawImage(iconImg, -iconWidth / 2, -iconHeight / 2, iconWidth, iconHeight);
                 ctx.restore();
+            }
 
-                // フレームを最後に描画（前面）
-                ctx.drawImage(frameImage, 0, 0, width, height);
-
-                showStatus('✅ 合成完了');
-            } catch (error) {
-                showStatus('❌ エラー: ' + error.message, 'error');
-                console.error(error);
+            // 2. 前面フレームの描画
+            if (frameImg) {
+                ctx.drawImage(frameImg, 0, 0, width, height);
             }
         }
 
@@ -579,12 +526,17 @@
         }
 
         function downloadImage() {
+            if (!frameImg && !iconImg) {
+                showStatus('画像がアップロードされていません', 'error');
+                return;
+            }
+
             try {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'icon-composed.png';
                 link.click();
-                showStatus('✅ ダウンロード開始');
+                showStatus('✅ 画像を保存しました');
             } catch (error) {
                 showStatus('❌ ダウンロード失敗: ' + error.message, 'error');
             }
