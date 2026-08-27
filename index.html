@@ -34,13 +34,11 @@
             align-items: start;
         }
 
-        /* PC（幅1025px以上）の配置 */
         @media (min-width: 1025px) {
             .upload-panel { grid-column: 1; grid-row: 1; }
             .preview-panel { grid-column: 2; grid-row: 1; position: sticky; top: 15px; }
         }
 
-        /* スマホ・タブレット（幅1024px以下）順序：画像選択 → プレビュー（調整機能込み） */
         @media (max-width: 1024px) {
             .main-content {
                 display: flex;
@@ -156,7 +154,7 @@
             border: 1px solid #ccc;
         }
 
-        /* プレビューエリア */
+        /* プレビュー表示エリア */
         .preview-area {
             display: flex;
             flex-direction: column;
@@ -172,19 +170,28 @@
             margin-bottom: 12px;
         }
 
+        /* 描画用Canvasは隠して処理だけに使用 */
         #canvas {
-            max-width: 100%;
-            max-height: 260px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: none;
         }
 
+        /* ユーザーが実際に目にして長押し操作するimgタグ */
         #resultImage {
             max-width: 100%;
             max-height: 260px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            -webkit-touch-callout: default;
+            /* 長押しメニューを確実に許可する設定 */
+            -webkit-touch-callout: default !important;
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+            pointer-events: auto !important;
+            display: block;
+        }
+
+        .placeholder-text {
+            color: #888;
+            font-size: 13px;
         }
 
         /* 畳める注意事項 */
@@ -339,13 +346,17 @@
                 </div>
             </div>
 
-            <!-- ② プレビュー ＆ 調整機能を枠内に統合 -->
+            <!-- ② プレビュー ＆ 調整 -->
             <div class="panel preview-panel">
                 <h2>👁️ プレビュー & 調整</h2>
                 
                 <div class="preview-area">
+                    <!-- 非表示のCanvas（計算・合成処理専用） -->
                     <canvas id="canvas" width="400" height="400"></canvas>
+                    
+                    <!-- 実際に表示され長押しで保存できるimgタグ -->
                     <img id="resultImage" alt="合成プレビュー" style="display:none;">
+                    <div id="placeholderText" class="placeholder-text">画像を選択するとプレビューが表示されます</div>
                 </div>
 
                 <!-- プレビュー直下に調整バーを配置 -->
@@ -405,8 +416,8 @@
                 <details class="info-accordion">
                     <summary>💡 保存できない場合はこちら</summary>
                     <div class="info-content">
-                        1. 「画像を保存/共有」で共有メニューを開き「画像を保存」を選択<br>
-                        2. プレビュー表示画像を長押しして「写真に追加」を選択
+                        1. 上のプレビュー画像を長押しして「写真に追加」または「画像を保存」<br>
+                        2. 「画像を保存/共有」ボタンから共有メニューを開いて保存
                     </div>
                 </details>
             </div>
@@ -417,11 +428,11 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const resultImage = document.getElementById('resultImage');
+        const placeholderText = document.getElementById('placeholderText');
         
         let frameImg = null;
         let iconImg = null;
         let isComposing = false;
-        let updateImageTimeout = null;
 
         document.getElementById('iconFile').addEventListener('change', (e) => handleFileSelect(e, 'icon'));
         document.getElementById('frameFile').addEventListener('change', (e) => handleFileSelect(e, 'frame'));
@@ -441,7 +452,7 @@
                         frameImg = img;
                         showFilePreview('framePreview', event.target.result, 'frameFileLabel');
                     }
-                    composeIcon(true);
+                    composeIcon();
                 };
                 img.src = event.target.result;
             };
@@ -468,17 +479,13 @@
                 document.getElementById(id + 'Value').textContent = e.target.value + unit;
                 requestCompose();
             });
-
-            el.addEventListener('change', () => {
-                syncResultImage();
-            });
         });
 
         function requestCompose() {
             if (!isComposing) {
                 isComposing = true;
                 requestAnimationFrame(() => {
-                    composeIcon(false);
+                    composeIcon();
                     isComposing = false;
                 });
             }
@@ -493,7 +500,7 @@
             }, 3000);
         }
 
-        function composeIcon(updateImg = true) {
+        function composeIcon() {
             if (!frameImg && !iconImg) return;
 
             const width = frameImg ? frameImg.width : iconImg.width;
@@ -528,18 +535,11 @@
                 ctx.drawImage(frameImg, 0, 0, width, height);
             }
 
-            if (updateImg) {
-                syncResultImage();
-            }
-        }
-
-        function syncResultImage() {
-            if (!frameImg && !iconImg) return;
-            clearTimeout(updateImageTimeout);
-            updateImageTimeout = setTimeout(() => {
-                const dataUrl = canvas.toDataURL('image/png');
-                resultImage.src = dataUrl;
-            }, 50);
+            // Canvas描画結果をそのまま<img>タグにコピー（リアルタイム更新）
+            const dataUrl = canvas.toDataURL('image/png');
+            resultImage.src = dataUrl;
+            resultImage.style.display = 'block';
+            if (placeholderText) placeholderText.style.display = 'none';
         }
 
         function resetValues() {
@@ -555,7 +555,7 @@
             document.getElementById('rotationValue').textContent = '0°';
             document.getElementById('opacityValue').textContent = '100%';
 
-            composeIcon(true);
+            composeIcon();
         }
 
         async function downloadImage() {
