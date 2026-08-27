@@ -22,8 +22,8 @@
         h1 {
             color: white;
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 32px;
+            margin-bottom: 20px;
+            font-size: 28px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
@@ -34,35 +34,42 @@
             align-items: start;
         }
 
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
+        /* PC等（幅1025px以上）のレイアウト配置 */
+        @media (min-width: 1025px) {
+            .upload-panel { grid-column: 1; grid-row: 1; }
+            .control-panel { grid-column: 1; grid-row: 2; }
+            .preview-panel { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 20px; }
         }
 
-        .left-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        /* スマホ・タブレット（幅1024px以下）の表示順変更：画像選択 → プレビュー → 調整バー */
+        @media (max-width: 1024px) {
+            .main-content {
+                display: flex;
+                flex-direction: column;
+            }
+            .upload-panel { order: 1; }
+            .preview-panel { order: 2; }
+            .control-panel { order: 3; }
         }
 
         .panel {
             background: white;
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 30px;
+            padding: 24px;
+            margin-bottom: 20px;
         }
 
         .panel h2 {
             color: #333;
-            font-size: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            font-size: 18px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #667eea;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .upload-grid {
@@ -81,8 +88,8 @@
             display: block;
             color: #555;
             font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 6px;
+            font-size: 13px;
         }
 
         .slider-group {
@@ -93,8 +100,8 @@
 
         input[type="range"] {
             flex: 1;
-            height: 6px;
-            border-radius: 3px;
+            height: 8px;
+            border-radius: 4px;
             background: #e0e0e0;
             outline: none;
             -webkit-appearance: none;
@@ -104,8 +111,8 @@
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #667eea;
             cursor: pointer;
@@ -113,17 +120,17 @@
         }
 
         .value-display {
-            min-width: 50px;
+            min-width: 48px;
             text-align: right;
             color: #667eea;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .button-group {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         button {
@@ -159,7 +166,7 @@
             background: #f9f9f9;
             border: 2px dashed #ddd;
             border-radius: 12px;
-            min-height: 400px;
+            min-height: 280px;
             position: relative;
             overflow: auto;
             padding: 10px;
@@ -167,14 +174,14 @@
 
         #canvas {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 320px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         #resultImage {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 320px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             -webkit-touch-callout: default;
@@ -183,12 +190,12 @@
         .info-box {
             background: #e3f2fd;
             border-left: 4px solid #2196f3;
-            padding: 12px;
+            padding: 10px 12px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 12px;
             color: #1565c0;
-            margin-top: 15px;
-            line-height: 1.6;
+            margin-top: 12px;
+            line-height: 1.5;
         }
 
         .download-section button, .download-section a {
@@ -218,34 +225,34 @@
 
         .control-section h3 {
             color: #667eea;
-            font-size: 14px;
-            margin-top: 20px;
-            margin-bottom: 12px;
+            font-size: 13px;
+            margin-top: 12px;
+            margin-bottom: 8px;
             text-transform: uppercase;
         }
 
         .row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
         }
 
         .image-preview {
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: center;
         }
 
         .image-preview img {
             max-width: 100%;
-            max-height: 100px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-height: 80px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .image-preview-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #2e7d32;
-            margin-top: 4px;
+            margin-top: 2px;
             font-weight: 600;
         }
 
@@ -258,13 +265,14 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: #f0f4ff;
             border: 2px dashed #667eea;
             border-radius: 8px;
             text-align: center;
             color: #667eea;
             font-weight: 600;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
@@ -279,11 +287,6 @@
             border-style: solid;
             background: #eef2ff;
         }
-
-        .preview-panel {
-            position: sticky;
-            top: 20px;
-        }
     </style>
 </head>
 <body>
@@ -291,104 +294,40 @@
         <h1>🎨 アイコン合成ツール</h1>
         
         <div class="main-content">
-            <div class="left-section">
-                <!-- アップロード部分 -->
-                <div class="panel">
-                    <h2>🖼️ 画像選択</h2>
-                    
-                    <div class="upload-grid">
-                        <div class="form-group">
-                            <label>① 背景（アイコン）</label>
-                            <label for="iconFile" class="file-input-button" id="iconFileLabel">
-                                📁 画像を選択
-                            </label>
-                            <input type="file" id="iconFile" accept="image/*">
-                            <div class="image-preview" id="iconPreview"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>② 前面（フレーム）</label>
-                            <label for="frameFile" class="file-input-button" id="frameFileLabel">
-                                🖼️ フレームを選択
-                            </label>
-                            <input type="file" id="frameFile" accept="image/*">
-                            <div class="image-preview" id="framePreview"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 微調整部分 -->
-                <div class="panel">
-                    <h2>⚙️ 位置・サイズ調整</h2>
-
-                    <div class="control-section">
-                        <h3>🎯 位置調整</h3>
-                        <div class="row">
-                            <div class="form-group">
-                                <label>X 位置 (px)</label>
-                                <div class="slider-group">
-                                    <input type="range" id="offsetX" min="-300" max="300" value="0">
-                                    <span class="value-display" id="offsetXValue">0</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Y 位置 (px)</label>
-                                <div class="slider-group">
-                                    <input type="range" id="offsetY" min="-300" max="300" value="0">
-                                    <span class="value-display" id="offsetYValue">0</span>
-                                </div>
-                            </div>
-                        </div>
+            <!-- ① 画像選択 -->
+            <div class="panel upload-panel">
+                <h2>🖼️ 画像選択</h2>
+                
+                <div class="upload-grid">
+                    <div class="form-group">
+                        <label>① 背景（アイコン）</label>
+                        <label for="iconFile" class="file-input-button" id="iconFileLabel">
+                            📁 画像を選択
+                        </label>
+                        <input type="file" id="iconFile" accept="image/*">
+                        <div class="image-preview" id="iconPreview"></div>
                     </div>
 
-                    <div class="control-section">
-                        <h3>📏 サイズ & 回転</h3>
-                        <div class="row">
-                            <div class="form-group">
-                                <label>拡大率 (%)</label>
-                                <div class="slider-group">
-                                    <input type="range" id="scale" min="10" max="250" value="100">
-                                    <span class="value-display" id="scaleValue">100%</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>回転 (度)</label>
-                                <div class="slider-group">
-                                    <input type="range" id="rotation" min="0" max="360" value="0">
-                                    <span class="value-display" id="rotationValue">0°</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>② 前面（フレーム）</label>
+                        <label for="frameFile" class="file-input-button" id="frameFileLabel">
+                            🖼️ フレームを選択
+                        </label>
+                        <input type="file" id="frameFile" accept="image/*">
+                        <div class="image-preview" id="framePreview"></div>
                     </div>
-
-                    <div class="control-section">
-                        <h3>🎨 不透明度</h3>
-                        <div class="form-group">
-                            <label>アイコン不透明度 (%)</label>
-                            <div class="slider-group">
-                                <input type="range" id="opacity" min="0" max="100" value="100">
-                                <span class="value-display" id="opacityValue">100%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="button-group">
-                        <button class="btn-secondary" onclick="resetValues()">↺ リセット</button>
-                    </div>
-
-                    <div id="status" class="status"></div>
                 </div>
             </div>
 
-            <!-- プレビュー表示 -->
-            <div class="preview-panel panel">
+            <!-- ② プレビュー表示（スマホでは中央に配置） -->
+            <div class="panel preview-panel">
                 <h2>👁️ プレビュー</h2>
                 <div class="preview-area">
                     <canvas id="canvas" width="400" height="400"></canvas>
                     <img id="resultImage" alt="合成プレビュー" style="display:none;">
                 </div>
                 
-                <div class="download-section" style="margin-top: 20px;">
+                <div class="download-section" style="margin-top: 15px;">
                     <button class="btn-primary" onclick="downloadImage()">📥 画像を保存 / 共有</button>
                 </div>
                 <div class="info-box">
@@ -396,6 +335,64 @@
                     1. 「画像を保存/共有」ボタンで共有メニューから保存<br>
                     2. プレビュー表示画像を長押しして「写真に追加」または「画像を保存」
                 </div>
+            </div>
+
+            <!-- ③ 微調整部分（プレビュー直下に配置） -->
+            <div class="panel control-panel">
+                <h2>⚙️ 位置・サイズ調整</h2>
+
+                <div class="control-section">
+                    <h3>📏 サイズ & 位置（基本調整）</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>拡大率 (%)</label>
+                            <div class="slider-group">
+                                <input type="range" id="scale" min="10" max="250" value="100">
+                                <span class="value-display" id="scaleValue">100%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>回転 (度)</label>
+                            <div class="slider-group">
+                                <input type="range" id="rotation" min="0" max="360" value="0">
+                                <span class="value-display" id="rotationValue">0°</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>X 位置 (左右)</label>
+                            <div class="slider-group">
+                                <input type="range" id="offsetX" min="-300" max="300" value="0">
+                                <span class="value-display" id="offsetXValue">0</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Y 位置 (上下)</label>
+                            <div class="slider-group">
+                                <input type="range" id="offsetY" min="-300" max="300" value="0">
+                                <span class="value-display" id="offsetYValue">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🎨 不透明度</h3>
+                    <div class="form-group">
+                        <label>アイコン不透明度 (%)</label>
+                        <div class="slider-group">
+                            <input type="range" id="opacity" min="0" max="100" value="100">
+                            <span class="value-display" id="opacityValue">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetValues()">↺ リセット</button>
+                </div>
+
+                <div id="status" class="status"></div>
             </div>
         </div>
     </div>
@@ -447,7 +444,6 @@
         const sliders = ['offsetX', 'offsetY', 'scale', 'rotation', 'opacity'];
         sliders.forEach(id => {
             const el = document.getElementById(id);
-            // 操作中は即座にCanvasのみ再描画（高速化）
             el.addEventListener('input', (e) => {
                 let unit = '';
                 if (id === 'scale' || id === 'opacity') unit = '%';
@@ -457,7 +453,6 @@
                 requestCompose();
             });
 
-            // 操作終了時にimgタグ（長押し保存用）を更新
             el.addEventListener('change', () => {
                 syncResultImage();
             });
@@ -522,7 +517,6 @@
             }
         }
 
-        // 長押し用imgへの変換処理（重いのでスライダー操作完了時のみ呼ぶ）
         function syncResultImage() {
             if (!frameImg && !iconImg) return;
             clearTimeout(updateImageTimeout);
@@ -562,7 +556,6 @@
 
                 const file = new File([blob], 'icon-composed.png', { type: 'image/png' });
 
-                // 1. Web Share API (Chrome / Safari モバイルで強力に動作)
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                         await navigator.share({
@@ -579,7 +572,6 @@
                     }
                 }
 
-                // 2. フォールバック: 通常のダウンロードリンク
                 try {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
