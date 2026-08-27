@@ -572,6 +572,7 @@
 
                 const file = new File([blob], 'icon-composed.png', { type: 'image/png' });
 
+                // ① Web Share API が使える場合
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                         await navigator.share({
@@ -579,15 +580,18 @@
                             title: 'アイコン画像',
                             text: '合成したアイコン画像です'
                         });
-                        showStatus('✅ 共有・保存メニューを開きました');
-                        return;
+                        showStatus('✅ 共有・保存を完了しました');
+                        return; // 正常完了時はここで終了
                     } catch (err) {
-                        if (err.name !== 'AbortError') {
-                            console.error(err);
+                        // ユーザーが「キャンセル」を押した場合は AbortError が発生する
+                        if (err.name === 'AbortError') {
+                            return; // キャンセル時は自動ダウンロードを行わず静かに終了する
                         }
+                        console.error(err);
                     }
                 }
 
+                // ② Web Share API 非対応環境、またはエラー時のフォールバック処理
                 try {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
