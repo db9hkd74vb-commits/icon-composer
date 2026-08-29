@@ -393,13 +393,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>アイコン不透明度 (%)</label>
-                        <div class="slider-group">
-                            <input type="range" id="opacity" min="0" max="100" value="100">
-                            <span class="value-display" id="opacityValue">100%</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="button-group">
@@ -468,12 +461,12 @@
             label.textContent = '🔄 変更する';
         }
 
-        const sliders = ['offsetX', 'offsetY', 'scale', 'rotation', 'opacity'];
+        const sliders = ['offsetX', 'offsetY', 'scale', 'rotation'];
         sliders.forEach(id => {
             const el = document.getElementById(id);
             el.addEventListener('input', (e) => {
                 let unit = '';
-                if (id === 'scale' || id === 'opacity') unit = '%';
+                if (id === 'scale') unit = '%';
                 if (id === 'rotation') unit = '°';
                 
                 document.getElementById(id + 'Value').textContent = e.target.value + unit;
@@ -518,10 +511,8 @@
                 const offsetY = parseFloat(document.getElementById('offsetY').value);
                 const scale = parseFloat(document.getElementById('scale').value) / 100;
                 const rotation = parseFloat(document.getElementById('rotation').value);
-                const opacity = parseFloat(document.getElementById('opacity').value) / 100;
 
                 ctx.save();
-                ctx.globalAlpha = opacity;
                 ctx.translate(width / 2 + offsetX, height / 2 + offsetY);
                 ctx.rotate((rotation * Math.PI) / 180);
 
@@ -547,13 +538,11 @@
             document.getElementById('offsetY').value = 0;
             document.getElementById('scale').value = 100;
             document.getElementById('rotation').value = 0;
-            document.getElementById('opacity').value = 100;
 
             document.getElementById('offsetXValue').textContent = '0';
             document.getElementById('offsetYValue').textContent = '0';
             document.getElementById('scaleValue').textContent = '100%';
             document.getElementById('rotationValue').textContent = '0°';
-            document.getElementById('opacityValue').textContent = '100%';
 
             composeIcon();
         }
